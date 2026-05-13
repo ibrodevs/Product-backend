@@ -1,13 +1,39 @@
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure--0%$1&ieu@%k#j8r4d4+n4ao^3-pk4ng$yo8&$#bije+7_ur06'
 
-DEBUG = True
+def get_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+def get_list(name: str, default: list[str]) -> list[str]:
+    value = os.getenv(name)
+    if not value:
+        return default
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-dev-only-change-me')
+DEBUG = get_bool('DJANGO_DEBUG', True)
+
+ALLOWED_HOSTS = get_list(
+    'DJANGO_ALLOWED_HOSTS',
+    ['127.0.0.1', 'localhost', '.pythonanywhere.com'],
+)
+
+CSRF_TRUSTED_ORIGINS = get_list(
+    'DJANGO_CSRF_TRUSTED_ORIGINS',
+    ['https://*.pythonanywhere.com'],
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,6 +50,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'core.middleware.PublicCorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -53,7 +80,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': Path(os.getenv('DJANGO_DB_PATH', BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -73,17 +100,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'Asia/Bishkek'
-
+TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'Asia/Bishkek')
 USE_I18N = True
-
 USE_TZ = True
 
 APPEND_SLASH = False
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.getenv('DJANGO_STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', str(BASE_DIR / 'media'))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -96,3 +123,24 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+CORS_ALLOW_ALL_ORIGINS = get_bool('DJANGO_CORS_ALLOW_ALL_ORIGINS', True)
+CORS_ALLOWED_ORIGINS = get_list('DJANGO_CORS_ALLOWED_ORIGINS', [])
+CORS_ALLOW_HEADERS = get_list(
+    'DJANGO_CORS_ALLOW_HEADERS',
+    ['Authorization', 'Content-Type', 'Accept', 'Origin', 'User-Agent', 'X-Requested-With'],
+)
+CORS_ALLOW_METHODS = get_list(
+    'DJANGO_CORS_ALLOW_METHODS',
+    ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+)
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = get_bool('DJANGO_SECURE_SSL_REDIRECT', True)
+    SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = get_bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
