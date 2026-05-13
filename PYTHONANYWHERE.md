@@ -9,6 +9,7 @@ This backend is ready to deploy on PythonAnywhere as a public Django/DRF API.
 - Public CORS headers are enabled for `/api/*`, so external frontend apps can call the API.
 - `STATIC_ROOT` is configurable for `collectstatic`.
 - A PythonAnywhere WSGI template is included at [deploy/pythonanywhere_wsgi.py](/Users/imac5/Desktop/projects/Product/backend/deploy/pythonanywhere_wsgi.py).
+- This document is pre-filled for `https://product21.pythonanywhere.com/`.
 
 ## 1. Upload code
 
@@ -45,14 +46,14 @@ Then edit `.env` and set at minimum:
 ```env
 DJANGO_SECRET_KEY=replace-with-a-long-random-secret
 DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=yourusername.pythonanywhere.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://yourusername.pythonanywhere.com
+DJANGO_ALLOWED_HOSTS=product21.pythonanywhere.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://product21.pythonanywhere.com
 DJANGO_CORS_ALLOW_ALL_ORIGINS=True
 DJANGO_SECURE_SSL_REDIRECT=True
 DJANGO_SECURE_HSTS_SECONDS=31536000
-DJANGO_STATIC_ROOT=/home/yourusername/Product/backend/staticfiles
-DJANGO_MEDIA_ROOT=/home/yourusername/Product/backend/media
-DJANGO_DB_PATH=/home/yourusername/Product/backend/db.sqlite3
+DJANGO_STATIC_ROOT=/home/product21/Product/backend/staticfiles
+DJANGO_MEDIA_ROOT=/home/product21/Product/backend/media
+DJANGO_DB_PATH=/home/product21/Product/backend/db.sqlite3
 ```
 
 If your frontend will live on a separate domain and you want to restrict browser access, change:
@@ -81,7 +82,7 @@ In the PythonAnywhere Web tab:
 4. Set the virtualenv path to something like:
 
 ```text
-/home/yourusername/.virtualenvs/product-backend
+/home/product21/.virtualenvs/product-backend
 ```
 
 ## 6. Configure the WSGI file
@@ -90,22 +91,20 @@ Open the WSGI file for the web app and replace its contents with the template fr
 
 - [deploy/pythonanywhere_wsgi.py](/Users/imac5/Desktop/projects/Product/backend/deploy/pythonanywhere_wsgi.py)
 
-Update `USERNAME = 'yourusername'`.
-
 ## 7. Configure static files
 
 In the Web tab, add a static files mapping:
 
 ```text
 URL: /static/
-Directory: /home/yourusername/Product/backend/staticfiles
+Directory: /home/product21/Product/backend/staticfiles
 ```
 
 If you use media uploads later, add:
 
 ```text
 URL: /media/
-Directory: /home/yourusername/Product/backend/media
+Directory: /home/product21/Product/backend/media
 ```
 
 ## 8. Reload the app
@@ -117,21 +116,21 @@ Press **Reload** in the Web tab.
 Your backend will then be reachable at:
 
 ```text
-https://yourusername.pythonanywhere.com/api/
+https://product21.pythonanywhere.com/api/
 ```
 
 Examples:
 
-- `https://yourusername.pythonanywhere.com/api/health`
-- `https://yourusername.pythonanywhere.com/api/auth/login`
-- `https://yourusername.pythonanywhere.com/api/tasks`
+- `https://product21.pythonanywhere.com/api/health`
+- `https://product21.pythonanywhere.com/api/auth/login`
+- `https://product21.pythonanywhere.com/api/tasks`
 
 ## Frontend note
 
 If your Next.js frontend is deployed elsewhere, point it to:
 
 ```env
-NEXT_PUBLIC_API_BASE=https://yourusername.pythonanywhere.com/api
+NEXT_PUBLIC_API_BASE=https://product21.pythonanywhere.com/api
 ```
 
 ## Security note

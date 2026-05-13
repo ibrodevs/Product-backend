@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-USERNAME = 'yourusername'
+USERNAME = 'product21'
 PROJECT_ROOT = Path(f'/home/{USERNAME}/Product/backend')
 
 if str(PROJECT_ROOT) not in sys.path:
